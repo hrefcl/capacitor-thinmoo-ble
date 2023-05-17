@@ -12,11 +12,11 @@ public class ThinmooBlePlugin extends Plugin {
     private ThinmooBle implementation = new ThinmooBle();
 
     @PluginMethod
-    public void echo(PluginCall call) {
+    public void open(PluginCall call) {
         String value = call.getString("value");
 
         JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
+        ret.put("value", implementation.open(value));
         call.resolve(ret);
     }
 }

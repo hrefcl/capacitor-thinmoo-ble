@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class ThinmooBle {
 
-    public String echo(String value) {
+    public String open(String value) {
         Log.i("Echo", value);
         return value;
     }
