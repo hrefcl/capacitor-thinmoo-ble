@@ -1,3 +1,11 @@
 export interface ThinmooBlePlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
+  open(options: { 
+    value: string, 
+    devSn: string[],
+    miniEkey: string[],
+    connection_services: string[],
+    services: string[],
+    characteristic_read: string[],
+    characteristic_write: string[]
+  }): Promise<{ value: string }>;
 }
