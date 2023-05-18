@@ -23,12 +23,12 @@ npx cap sync
 ### open(...)
 
 ```typescript
-open(options: { value: string; devSn: string; miniEkey: string; connection_services: string; services: string; characteristic_read: string; characteristic_write: string; }) => Promise<{ value: string; }>
+open(options: { devSn: string; miniEkey: string; value?: string; connection_services?: string; services?: string; characteristic_read?: string; characteristic_write?: string; }) => Promise<{ value: string; }>
 ```
 
-| Param         | Type                                                                                                                                                                       |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`options`** | <code>{ value: string; devSn: string; miniEkey: string; connection_services: string; services: string; characteristic_read: string; characteristic_write: string; }</code> |
+| Param         | Type                                                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ devSn: string; miniEkey: string; value?: string; connection_services?: string; services?: string; characteristic_read?: string; characteristic_write?: string; }</code> |
 
 **Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
 

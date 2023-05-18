@@ -12,19 +12,22 @@ import CoreBluetooth
     var writeCharacteristicUUID: CBUUID!
     var miniEkey: String!
     var devSn: String!
+    var rssi: NSNumber?
+    var value: String?
 
-    public func open(_ value: String, devSn: String, miniEkey: String, connection_services: String, services: String, characteristic_read: String, characteristic_write: String) -> String {
+    public func open(_  devSn: String, miniEkey: String, value: String? = nil, connection_services: String? = nil, services: String? = nil, characteristic_read: String? = nil, characteristic_write: String? = nil) -> String {
+        self.value = value ?? "1"
         self.devSn = devSn
         self.miniEkey = miniEkey
-        self.serviceUUID = CBUUID(string: connection_services)
-        self.readWriteServiceUUID = CBUUID(string: services)
-        self.readCharacteristicUUID = CBUUID(string: characteristic_read)
-        self.writeCharacteristicUUID = CBUUID(string: characteristic_write)
+        self.serviceUUID = CBUUID(string: connection_services ?? "00005CB8-0000-1000-8000-00805F9B34FB")
+        self.readWriteServiceUUID = CBUUID(string: services ?? "0886b765-9f76-6472-96ef-ab19c539878a")
+        self.readCharacteristicUUID = CBUUID(string: characteristic_read ?? "0000878B-0000-1000-8000-00805f9b34fb")
+        self.writeCharacteristicUUID = CBUUID(string: characteristic_write ?? "0000878C-0000-1000-8000-00805f9b34fb")
 
         self.centralManager = CBCentralManager(delegate: self, queue: nil)
         self.centralManager.scanForPeripherals(withServices: [serviceUUID], options: nil)
 
-        return value
+        return self.value ?? "1"
     }
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -50,6 +53,7 @@ import CoreBluetooth
 
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         if let name = peripheral.name, name.contains(devSn) {
+            self.rssi = RSSI
             self.peripheral = peripheral
             centralManager.stopScan()
             centralManager.connect(peripheral, options: nil)
@@ -72,28 +76,34 @@ import CoreBluetooth
         }
     }
 
-    public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+   public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else { return }
 
         for characteristic in characteristics {
             if characteristic.uuid == readCharacteristicUUID {
                 peripheral.readValue(for: characteristic)
             } else if characteristic.uuid == writeCharacteristicUUID {
-                if characteristic.properties.contains(.write) {
-                    guard let data = Data(hex: self.miniEkey) else {
-                        print("Invalid miniEkey")
-                        return
-                    }
+                if let rssi = rssi, let value = value, let valueDouble = Double(value) {
+                    let txPower = -60.0 // Potencia de transmisión a 1 metro (este valor debe ser ajustado según el dispositivo)
+                    let n = 2.0 // Factor de atenuación de la señal (ajustar según sea necesario)
+                    let distance = pow(10, (txPower - rssi.doubleValue) / (10 * n))
+                    print("Distancia estimada:", distance)
 
-                    peripheral.writeValue(data, for: characteristic, type: .withResponse)
-                } else if characteristic.properties.contains(.writeWithoutResponse) {
-                    guard let data = Data(hex: self.miniEkey) else {
-                        print("Invalid miniEkey")
-                        return
+                    if distance <= valueDouble {
+                        if characteristic.properties.contains(.write) {
+                            guard let data = Data(hex: self.miniEkey) else {
+                                print("Invalid miniEkey")
+                                return
+                            }
+                            peripheral.writeValue(data, for: characteristic, type: .withResponse)
+                        } else if characteristic.properties.contains(.writeWithoutResponse) {
+                            guard let data = Data(hex: self.miniEkey) else {
+                                print("Invalid miniEkey")
+                                return
+                            }
+                            peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
+                        }
                     }
-                    peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
-                } else {
-                    print("Cannot write to characteristic \(characteristic.uuid.uuidString)")
                 }
             }
         }
