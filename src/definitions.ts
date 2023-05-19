@@ -1,3 +1,9 @@
+import type { PluginListenerHandle } from '@capacitor/core';
+export interface OpenSuccessData {
+  success: boolean;
+  devSn: string;
+  miniEkey: string;
+}
 export interface ThinmooBlePlugin {
   open(options: {
     devSn: string;
@@ -7,5 +13,10 @@ export interface ThinmooBlePlugin {
     services?: string;
     characteristic_read?: string;
     characteristic_write?: string;
-  }): Promise<{ value: string }>;
+  }): Promise<{ success: boolean }>;
+
+  addListener(
+    eventName: 'openSuccess',
+    listenerFunc: (data: OpenSuccessData) => void,
+  ): Promise<PluginListenerHandle> & PluginListenerHandle;
 }
