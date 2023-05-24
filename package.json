@@ -1,6 +1,6 @@
 {
   "name": "capacitor-thinmoo-ble",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Conexion via bluetooth para los dispositivos Thinmoo",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
