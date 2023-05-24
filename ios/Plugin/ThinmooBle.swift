@@ -65,6 +65,7 @@ import Capacitor
     
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         print("Discovered peripheral: \(peripheral.name ?? "")")
+        print("find peripheral: \(devSn ?? "")")
         
         if let name = peripheral.name, name.contains(devSn) {
             self.rssi = RSSI
@@ -72,6 +73,15 @@ import Capacitor
             peripheral.delegate = self  // Añade esta línea
             centralManager.stopScan()
             centralManager.connect(peripheral, options: nil)
+        } else {
+            print("Discovered not in correct name")
+            if let plugin = self.plugin {
+                plugin.notifyListeners("openSuccess", data: [
+                    "success": false,
+                    "devSn"    : devSn ?? "",
+                    "miniEkey"   : miniEkey ?? ""
+                ])
+            }
         }
     }
     
@@ -119,6 +129,7 @@ import Capacitor
                             if peripheral.state == .connected {
                                 peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
                                 // completionHandler?(true)
+                                print("Peripheral is Open")
                                 if let plugin = self.plugin {
                                     plugin.notifyListeners("openSuccess", data: [
                                         "success": true,
@@ -136,6 +147,15 @@ import Capacitor
                                     ])
                                 }
                             }
+                        }
+                    } else {
+                        print("Peripheral muy lejos")
+                        if let plugin = self.plugin {
+                            plugin.notifyListeners("openSuccess", data: [
+                                "success": false,
+                                "devSn"    : devSn ?? "",
+                                "miniEkey"   : miniEkey ?? ""
+                            ])
                         }
                     }
                 }
@@ -170,7 +190,7 @@ import Capacitor
             // completionHandler?(true)
         }
     }
-
+    
 }
 
 
