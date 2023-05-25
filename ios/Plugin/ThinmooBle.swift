@@ -75,13 +75,13 @@ import Capacitor
             centralManager.connect(peripheral, options: nil)
         } else {
             print("Discovered not in correct name")
-            if let plugin = self.plugin {
-                plugin.notifyListeners("openSuccess", data: [
-                    "success": false,
-                    "devSn"    : devSn ?? "",
-                    "miniEkey"   : miniEkey ?? ""
-                ])
-            }
+            // if let plugin = self.plugin {
+            //     plugin.notifyListeners("openSuccess", data: [
+            //         "success": false,
+            //         "devSn"    : devSn ?? "",
+            //         "miniEkey"   : miniEkey ?? ""
+            //     ])
+            // }
         }
     }
     
